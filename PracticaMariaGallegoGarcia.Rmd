@@ -1,0 +1,117 @@
+---
+title: 'Práctica General - Curso: Manejo y visualización de datos en R'
+author: "María Gallego García"
+date: "Enero 2022"
+output:
+  html_document: default
+  word_document: default
+---
+```{r, echo= FALSE, warning= FALSE, message= FALSE}
+#getwd()
+#setwd ("C:\\Users\\MARÍA\\Documents\\R ejercicios\\PINGUINOS")
+
+#install.packages("palmerpenguins")
+library(palmerpenguins)
+#data(package = 'palmerpenguins')
+library(tidyverse)
+#install.packages("kableExtra")
+library(kableExtra)
+```
+
+## Ejercicio 1
+##### (1A) Número de individuos totales, masculinos y femeninos por especie. 
+##### (1B) La media, desviación estándar, valor mínimo y máximo de la longitud y profundidad del pico, la longitud de la aleta y el tamaño.
+###### Resultados
+
+**(1A)**
+
+```{r, echo= FALSE, warning= FALSE, message= FALSE}
+cuqui <- penguins %>% count(species, sex)
+#View(cuqui)
+dt <- cuqui[1:8, 1:3]
+dt %>%
+  kbl(caption = "Número de individuos totales M y F por especie") %>% 
+    kable_styling(full_width = FALSE)
+```
+
+**(1B)**
+
+```{r, echo= FALSE, warning= FALSE, message= FALSE, results='hide'}
+cucu <- penguins %>% 
+  group_by(species) %>% 
+  summarise(media_longpico = mean(bill_length_mm, na.rm=TRUE), 
+            sd_longpico = sd(bill_length_mm, na.rm=TRUE),
+            min_max_longpico = range(bill_length_mm, na.rm=TRUE),
+            media_profpico = mean(bill_depth_mm, na.rm=TRUE), 
+            sd_profpico = sd(bill_depth_mm, na.rm=TRUE), 
+            min_max_profpico = range(bill_depth_mm, na.rm=TRUE),
+            media_longaleta = mean(flipper_length_mm, na.rm=TRUE), 
+            sd_longaleta = sd(flipper_length_mm, na.rm=TRUE),
+            min_max_longaleta = range(flipper_length_mm, na.rm=TRUE),
+            media_tamaño = mean(body_mass_g, na.rm=TRUE), 
+            sd_tamaño = sd(body_mass_g, na.rm=TRUE),
+            min_max_tamaño = range(body_mass_g, na.rm=TRUE))
+
+cucu
+#View(cucu)
+```
+```{r, echo= FALSE, warning= FALSE, message= FALSE}
+dtt <- cucu[1:6, 1:13]
+dtt %>% 
+ kbl(caption = "Medias, desviaciones y rangos (min y max) de logitud y profundidad pico, longitud aleta y tamaño") %>% 
+  kable_classic()
+```
+
+## Ejercicio 2
+##### (2A) Un gráfico de barras que represente el número de individuos muestreados de cada especie en cada isla, representando las especies en diferentes colores (chinstrap – morado, gentoo – azul, adelie – naranja). 
+##### (2B) Contesta a las siguientes preguntas: ¿qué especie se ha muestreado en las tres islas? ¿cuántos individuos se han muestreado de la isla Dream?
+###### Gráfico y respuestas
+
+**(2A)**
+
+```{r, echo= FALSE, warning= FALSE, message= FALSE}
+act2 <- ggplot(penguins, aes(x = island, fill = species)) +
+  geom_bar(alpha = 1) +
+  scale_fill_manual(values =c("darkorange","darkviolet","cornflowerblue"))+
+  theme_minimal() +
+  facet_wrap(~species, ncol = 1) +
+  coord_flip() + 
+  labs(x = "Islas", y = "Nº individuos muestreados")
+
+act2
+```
+
+**(2B)**
+
+```{r, echo= FALSE, warning= FALSE, message= FALSE, results='hide'}
+act2_data <- ggplot_build(act2)
+head(act2_data$data)
+dream <- 56+68
+dream
+```
+
+¿Qué especie se ha muestreado en las tres islas?: **La especie Adelie**
+¿Cuántos individuos se han muestreado de la isla Dream?:**124 individuos**
+
+## Ejercicio 3
+##### (3A) Un gráfico multipanel de cajas y bigotes del tamaño de los pingüinos según su sexo, donde aparezca un panel para cada especie. 
+##### (3B) Contesta a las siguientes preguntas: ¿qué especie tiene mayor tamaño? ¿en qué especie las hembras y los machos tienen un tamaño más similar?
+###### Gráfico y respuestas
+
+**(3A)**
+
+```{r, echo= FALSE, warning= FALSE, message= FALSE}
+act3 <- ggplot(data = penguins, aes(x = sex, y = body_mass_g)) +
+  geom_boxplot(aes(color = species), width = 0.5) +
+  scale_color_manual(values = c("darkorange","darkviolet","cornflowerblue")) +
+  theme_minimal() +
+  facet_wrap(~species, ncol = 1) +
+  labs(x = "Sexo", y = "Tamaño (g)")
+
+act3
+```
+
+**(3B)**
+
+¿Qué especie tiene mayor tamaño?: **La especie Gentoo**
+¿En qué especie las hembras y los machos tienen un tamaño más similar?: **En la especie Chinstrap**
